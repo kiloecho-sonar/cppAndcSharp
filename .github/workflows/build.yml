@@ -5,13 +5,15 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
+
 jobs:
   build:
     name: Build and analyze
-    runs-on: windows-latest   # <-- Changed from ubuntu-latest to windows-latest
+    runs-on: windows-latest
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory
       SONAR_SCANNER_PROJECT_KEY: SupportTeam-SC-demos_kilo-cppAndcSharp
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,12 +41,15 @@ jobs:
             /d:sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2  # <-- Add this step
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore .NET dependencies
+        run: dotnet restore CPlusPlusAndCSharp.sln
 
       - name: Build Solution with Build Wrapper
         run: |
           build-wrapper-win-x86-64 --out-dir $env:BUILD_WRAPPER_OUT_DIR msbuild CPlusPlusAndCSharp.sln /p:Configuration=Release
-        shell: pwsh  # Use PowerShell for Windows
+        shell: pwsh
 
       - name: SonarScanner for .NET - End
         env:
