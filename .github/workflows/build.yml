@@ -34,6 +34,7 @@ jobs:
         run: |
           dotnet-sonarscanner begin \
             /k:"${{ env.SONAR_SCANNER_PROJECT_KEY }}" \
+            /o: "supportteam-sc-demos" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
 
