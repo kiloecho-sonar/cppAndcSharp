@@ -8,9 +8,9 @@ on:
 jobs:
   build:
     name: Build and analyze
-    runs-on: ubuntu-latest
+    runs-on: windows-latest   # <-- Changed from ubuntu-latest to windows-latest
     env:
-      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory
       SONAR_SCANNER_PROJECT_KEY: SupportTeam-SC-demos_kilo-cppAndcSharp
     steps:
       - uses: actions/checkout@v4
@@ -32,15 +32,19 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          dotnet-sonarscanner begin \
-            /k:"${{ env.SONAR_SCANNER_PROJECT_KEY }}" \
-            /o:"supportteam-sc-demos" \
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+          dotnet-sonarscanner begin `
+            /k:"${{ env.SONAR_SCANNER_PROJECT_KEY }}" `
+            /o:"supportteam-sc-demos" `
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2  # <-- Add this step
 
       - name: Build Solution with Build Wrapper
         run: |
-          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} dotnet build CPlusPlusAndCSharp.sln --no-incremental
+          build-wrapper-win-x86-64 --out-dir $env:BUILD_WRAPPER_OUT_DIR msbuild CPlusPlusAndCSharp.sln /p:Configuration=Release
+        shell: pwsh  # Use PowerShell for Windows
 
       - name: SonarScanner for .NET - End
         env:
